@@ -9,10 +9,10 @@ import (
 	"strings"
 )
 
-type LevelValue slog.Level
+type levelVar slog.Level
 
-var _ flag.Value = new(LevelValue)
-var _ slog.Leveler = new(LevelValue)
+var _ flag.Value = new(levelVar)
+var _ slog.Leveler = new(levelVar)
 
 var ErrParse = errors.New("cannot parse log level")
 
@@ -36,7 +36,7 @@ func parse(val string) (slog.Level, error) {
 
 var re = regexp.MustCompile(`^(DEBUG|INFO|WARN|ERROR)([+-])([0-9]+)$`)
 
-func (lv *LevelValue) Set(val string) error {
+func (lv *levelVar) Set(val string) error {
 	var l slog.Level
 
 	val = strings.ToUpper(val)
@@ -57,21 +57,21 @@ func (lv *LevelValue) Set(val string) error {
 	d, _ := strconv.Atoi(val[idx:])
 	l += slog.Level(d)
 
-	*lv = LevelValue(l)
+	*lv = levelVar(l)
 
 	return nil
 }
 
-func (lv *LevelValue) String() string {
+func (lv *levelVar) String() string {
 	l := slog.Level(*lv)
 	return l.String()
 }
 
-func (lv *LevelValue) Level() slog.Level { return slog.Level(*lv) }
+func (lv *levelVar) Level() slog.Level { return slog.Level(*lv) }
 
 func LevelVar(p *slog.Level, name string, value slog.Level, usage string) {
 	*p = value
-	lv := LevelValue(*p)
+	lv := levelVar(*p)
 	flag.CommandLine.Var(&lv, name, usage)
 }
 
