@@ -4,7 +4,6 @@ import (
 	"errors"
 	"flag"
 	"log/slog"
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -33,8 +32,6 @@ func parse(val string) (slog.Level, error) {
 
 	return l, nil
 }
-
-var re = regexp.MustCompile(`^(DEBUG|INFO|WARN|ERROR)([+-])([0-9]+)$`)
 
 func (lv *levelVar) Set(val string) error {
 	var l slog.Level
