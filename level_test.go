@@ -45,7 +45,7 @@ func BenchmarkLevelVarSet(b *testing.B) {
 			var lv levelVar
 
 			for i := 0; i < b.N; i++ {
-				lv.Set(in)
+				_ = lv.Set(in)
 			}
 		})
 	}
