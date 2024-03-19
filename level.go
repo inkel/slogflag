@@ -26,7 +26,9 @@ package slogflag
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"log/slog"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -39,6 +41,8 @@ var _ slog.Leveler = new(levelVar)
 // ErrParse is the error returned when it's impossible to parse the
 // log level to something slog accepts.
 var ErrParse = errors.New("cannot parse log level")
+
+var reAllDigits = regexp.MustCompile("^[-+]?[0-9]+$")
 
 func parse(val string) (slog.Level, error) {
 	var l slog.Level
@@ -61,6 +65,15 @@ func parse(val string) (slog.Level, error) {
 func (lv *levelVar) Set(val string) error {
 	var l slog.Level
 
+	if reAllDigits.MatchString(val) {
+		l, err := strconv.Atoi(val)
+		if err != nil {
+			return fmt.Errorf("%w: %w", ErrParse, err)
+		}
+		*lv = levelVar(l)
+		return nil
+	}
+
 	val = strings.ToUpper(val)
 	idx := len(val)
 
@@ -76,8 +89,13 @@ func (lv *levelVar) Set(val string) error {
 		return err
 	}
 
-	d, _ := strconv.Atoi(val[idx:])
-	l += slog.Level(d)
+	if idx < len(val) {
+		d, err := strconv.Atoi(val[idx:])
+		if err != nil {
+			return fmt.Errorf("%w: %w", ErrParse, err)
+		}
+		l += slog.Level(d)
+	}
 
 	*lv = levelVar(l)
 
